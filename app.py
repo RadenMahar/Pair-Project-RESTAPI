@@ -1,3 +1,38 @@
+# @app.route('/')
+# def index():
+#     return "<h1> Hello : This main route <h1>"
+
+# @app.route('/name', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+# def name_controller():
+#     person = Person()
+#     if request.method in 'POST':
+#         data = request.get_json()
+#         person.name = data['name']
+#         person.age = data['umur']
+#         person.sex = data['sex']
+#         return json.dumps(person.__dict__), 200, {'Content-Type': 'application/json'}
+            #json.dumps : json -> text
+        
+#         #respon code -> 200
+#         #json.dumps(person.__dict__) -> text
+#         #{'Content-Type': 'application/json'} -> file json
+
+#     elif request.method == 'GET':
+#         return json.dumps(person.__dict__), 200, {'Content-Type': 'application/json'}
+#     elif request.method == 'PUT':
+#         data = request.get_json()
+#         person.name = data['name']
+#         person.age = data['umur']
+#         person.sex = data['sex']
+#         return json.dumps(person.__dict__), 200, {'Content-Type': 'application/json'}
+    
+#     elif request.method == 'DELETE':
+#         return 'Deleted', 200
+#     else:
+#         return 'Not yet implement', 501
+
+# from flask import Flask, request
+# import json
 from flask_restful import Api
 from blueprints import app, manager
 import logging, sys

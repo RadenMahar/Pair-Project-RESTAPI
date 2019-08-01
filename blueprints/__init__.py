@@ -1,3 +1,4 @@
+# from flask_restful import Resource, Api, reqparse
 from flask import Flask, request
 import json, logging
 from flask_restful import Resource, Api, reqparse
@@ -79,12 +80,20 @@ def after_request(response):
 
 
 
+from blueprints.person.resources import bp_person
 from blueprints.Client.resources import bp_client
+from blueprints.User.resources import bp_user
+from blueprints.Books.resources import bp_books
 from blueprints.auth import bp_auth
 from blueprints.wheather.resources import bp_weather
+from blueprints.rent.resources import bp_rent
 
 
-app.register_blueprint(bp_client, url_prefix='/client')
+app.register_blueprint(bp_person, url_prefix='/person')
+app.register_blueprint(bp_client, url_prefix='/Client')
+app.register_blueprint(bp_user, url_prefix='/User')
+app.register_blueprint(bp_books, url_prefix='/Books')
 app.register_blueprint(bp_auth, url_prefix='/auth')
 app.register_blueprint(bp_weather, url_prefix='/weather')
+app.register_blueprint(bp_rent, url_prefix='/rent')
 db.create_all()
