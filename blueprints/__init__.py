@@ -1,4 +1,3 @@
-# from flask_restful import Resource, Api, reqparse
 from flask import Flask, request
 import json, logging
 from flask_restful import Resource, Api, reqparse
@@ -14,7 +13,7 @@ import requests
 app = Flask(__name__)
 
 app.config['APP_DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@127.0.0.1:3306/rest_training'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@127.0.0.1:3306/HOLLIDAY'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 
 app.config['JWT_SECRET_KEY'] = 'Skjakdjladd668adkka'
@@ -68,32 +67,14 @@ def after_request(response):
             'request': requestData, 
             'response': json.loads(response.data.decode('utf-8'))}))
         return response
-        # if request.method == 'GET':
-        #     app.logger.warning("REQUEST_LOG\t%s", json.dumps({'uri': request.full_path,'request':request.args.to_dict(), 'response': json.loads(response.data.decode('utf-8'))
-        #         }))
-        # else:
-        #     app.logger.warning("REQUEST_LOG\t%s", json.dumps({'uri': request.full_path,'request':request.get_json(), 'response': json.loads(response.data.decode('utf-8'))}))
-    # return response
-
-#result of json.load -> is dictionary
-#result of json.dumps -> is string
 
 
-
-from blueprints.person.resources import bp_person
 from blueprints.Client.resources import bp_client
-from blueprints.User.resources import bp_user
-from blueprints.Books.resources import bp_books
-from blueprints.auth import bp_auth
-from blueprints.wheather.resources import bp_weather
-from blueprints.rent.resources import bp_rent
+# from blueprints.auth import bp_auth
+from blueprints.Location.resources import bp_location
 
 
-app.register_blueprint(bp_person, url_prefix='/person')
-app.register_blueprint(bp_client, url_prefix='/Client')
-app.register_blueprint(bp_user, url_prefix='/User')
-app.register_blueprint(bp_books, url_prefix='/Books')
-app.register_blueprint(bp_auth, url_prefix='/auth')
-app.register_blueprint(bp_weather, url_prefix='/weather')
-app.register_blueprint(bp_rent, url_prefix='/rent')
+app.register_blueprint(bp_client, url_prefix='/client')
+# app.register_blueprint(bp_auth, url_prefix='/auth')
+app.register_blueprint(bp_location, url_prefix='/location')
 db.create_all()

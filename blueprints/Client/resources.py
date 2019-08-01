@@ -6,7 +6,7 @@ from .model import Clients
 from flask_jwt_extended import jwt_required
 
 from . import *
-from blueprints import db, app, internal_required
+from blueprints import db, app
 
 bp_client = Blueprint('client', __name__)
 
@@ -17,55 +17,31 @@ class ClientResource(Resource):
     def __init__(self):
         pass
 
-    @jwt_required
-    @internal_required
-    def get(self, client_id=None):
-        qry = Clients.query.get(client_id)
+    def get(self, id=None):
+        qry = Clients.query.get(id)
         if qry is not None:
             return marshal(qry, Clients.response_fields), 200, {'Content-Type':'application/json'}
         return {'status' : 'NOT_FOUND'}, 404
 
-    @jwt_required
-    @internal_required
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('client_key', location='json', required=True)
-        parser.add_argument('client_secret', location='json', required=True)
-        parser.add_argument('status', location='json', required=True, type = inputs.boolean)
+        parser.add_argument('name', location='json', required=True)
+        parser.add_argument('sex', location='json', required=True)
+        parser.add_argument('access_key', location='json', required=True)
+        parser.add_argument('access_secret', location='json', required=True)
+        parser.add_argument('status_access', location='json', required=False, type = inputs.boolean)
         args = parser.parse_args()
         
-        client = Clients(args['client_key'], args['client_secret'], args['status'])
+        client = Clients(args['name'], args['sex'], args['access_key'], args['access_secret'], args['status_access'])
         db.session.add(client)
         db.session.commit()
 
         app.logger.debug('DEBUG : %s', client)
 
         return marshal(client, Clients.response_fields), 200, {'Content-Type': 'application/json'}
-    
-    @jwt_required
-    @internal_required
-    def put(self, client_id):
-        parser = reqparse.RequestParser()
-        parser.add_argument('client_key', location='json', required=True)
-        parser.add_argument('client_secret', location='json', required=True)
-        parser.add_argument('status', location='json', required=True, type = inputs.boolean)
-        args = parser.parse_args()
-        
-        qry = Clients.query.get(client_id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
-        
-        qry.client_key = args['client_key']
-        qry.client_secret = args['client_secret']
-        qry.status = args['status']
-        db.session.commit()
 
-        return marshal(qry, Clients.response_fields), 200
-
-    @jwt_required
-    @internal_required
-    def delete(self, client_id):
-        qry = Clients.query.get(client_id)
+    def delete(self, id):
+        qry = Clients.query.get(id)
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
 
@@ -73,6 +49,28 @@ class ClientResource(Resource):
         db.session.commit()
 
         return {'status': 'DELETED'}, 200
+    
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', location='json', required=True)
+        parser.add_argument('sex', location='json', required=True)
+        parser.add_argument('access_key', location='json', required=True)
+        parser.add_argument('access_secret', location='json', required=True)
+        parser.add_argument('status_access', location='json', required=False, type = inputs.boolean)
+        args = parser.parse_args()
+        
+        qry = Clients.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        
+        qry.name = args['name']
+        qry.sex = args['sex']
+        qry.access_key = args['access_key']
+        qry.access_secret = args['access_secret']
+        qry.status_access = args['status_access']
+        db.session.commit()
+
+        return marshal(qry, Clients.response_fields), 200
         
     def patch(self):
         return "not yet implemented", 501
@@ -80,38 +78,20 @@ class ClientResource(Resource):
 class Clientlist(Resource):
     def __init__(self):
         pass
-    
-    @jwt_required
-    @internal_required
+
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('p', type = int, location = 'args', default = 1)
         parser.add_argument('rp', type = int, location = 'args', default = 25)
-        parser.add_argument('status', location = 'args', help='invalid status', type = inputs.boolean, choices = (True, False))
-        parser.add_argument('orderby', location = 'args', help='invalid status', choices = ('client_id', 'client_secret'))
-        parser.add_argument('sort', location = 'args', help='invalid status', choices = ('desc', 'asc'))
+        parser.add_argument('status_access', location = 'args', help='invalid status', type = inputs.boolean, choices = (True, False))
         args = parser.parse_args()
 
         offset = args['p']*args['rp'] - args['rp']
 
         qry = Clients.query
 
-        if args['status'] is not None:
-            qry = qry.filter_by(status=args['status'])
-        
-        if args['orderby'] is not None:
-            if args['orderby'] == 'client_id':
-                if args['sort'] is not None and args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Clients.client_id))
-                else:
-                    qry = qry.order_by(Clients.client_id)
-
-            elif args['orderby'] == 'client_secret':
-                if args['sort'] is not None and args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Clients.client_secret))
-                else:
-                    qry = qry.order_by(Clients.client_secret)               
-
+        if args['status_access'] is not None:
+            qry = qry.filter_by(status=args['status_access'])               
         
         qry = qry.limit(args['rp']).offset(offset).all()
         list_temp = []
@@ -119,6 +99,6 @@ class Clientlist(Resource):
             list_temp.append(marshal(row, Clients.response_fields))
         
         return list_temp, 200 
-
-api.add_resource(ClientResource, '', '/<client_id>')
+    
+api.add_resource(ClientResource, '', '/<id>')
 api.add_resource(Clientlist, '', '/list')
